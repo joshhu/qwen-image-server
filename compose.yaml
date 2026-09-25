@@ -1,0 +1,28 @@
+services:
+  qwen-image:
+    build: .
+    image: qwen-image-server:latest
+    container_name: qwen-image-server
+    restart: unless-stopped
+    shm_size: 8G
+    ports:
+      - "7860:7860"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - STEPS=${STEPS:-40}
+    volumes:
+      # 模型權重快取，重建 container 不用重新下載
+      - hf-cache:/models
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+      - render
+    security_opt:
+      - seccomp:unconfined
+
+volumes:
+  hf-cache:
